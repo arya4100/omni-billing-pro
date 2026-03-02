@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sequence for Invoices -->
+        <record id="seq_omni_invoice" model="ir.sequence">
+            <field name="name">Omni Invoice Sequence</field>
+            <field name="code">omni.invoice</field>
+            <field name="prefix">INV/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Sequence for Transactions -->
+        <record id="seq_omni_transaction" model="ir.sequence">
+            <field name="name">Omni Transaction Sequence</field>
+            <field name="code">omni.transaction</field>
+            <field name="prefix">TRX/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

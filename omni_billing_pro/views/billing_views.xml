@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Omni Invoice Views -->
+    <record id="view_omni_invoice_tree" model="ir.ui.view">
+        <field name="name">omni.invoice.tree</field>
+        <field name="model">omni.invoice</field>
+        <field name="arch" type="xml">
+            <tree string="Invoices" decoration-info="state == 'draft'" decoration-success="state == 'paid'" decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_invoice"/>
+                <field name="date_due" optional="show"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="amount_due" sum="Due"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'paid'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_omni_invoice_form" model="ir.ui.view">
+        <field name="name">omni.invoice.form</field>
+        <field name="model">omni.invoice</field>
+        <field name="arch" type="xml">
+            <form string="Invoice">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" states="draft" class="oe_highlight"/>
+                    <button name="action_register_payment" string="Register Payment" type="object" states="open" class="oe_highlight"/>
+                    <button name="action_cancel" string="Cancel" type="object" states="draft,open"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" states="cancel"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,open,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="date_invoice"/>
+                            <field name="date_due"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Invoice Lines">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_subtotal" sum="Subtotal"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right" colspan="2" name="omni_total">
+                                <field name="amount_total"/>
+                                <field name="amount_paid"/>
+                                <field name="amount_due" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Transactions">
+                            <field name="transaction_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="payment_method"/>
+                                    <field name="amount"/>
+                                    <field name="state" widget="badge"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Terms and Conditions">
+                            <field name="notes" placeholder="Add terms and conditions here..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Omni Transaction Views -->
+    <record id="view_omni_transaction_tree" model="ir.ui.view">
+        <field name="name">omni.transaction.tree</field>
+        <field name="model">omni.transaction</field>
+        <field name="arch" type="xml">
+            <tree string="Transactions" decoration-info="state == 'draft'" decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="invoice_id"/>
+                <field name="payment_method"/>
+                <field name="amount" sum="Total"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_omni_transaction_form" model="ir.ui.view">
+        <field name="name">omni.transaction.form</field>
+        <field name="model">omni.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Transaction">
+                <header>
+                    <button name="action_confirm_payment" string="Confirm Payment" type="object" states="draft" class="oe_highlight"/>
+                    <button name="action_cancel" string="Cancel" type="object" states="draft"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="invoice_id" domain="[('partner_id', '=', partner_id), ('state', '=', 'open')]"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="payment_method"/>
+                            <field name="amount"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions and Menus -->
+    <record id="action_omni_invoice" model="ir.actions.act_window">
+        <field name="name">Business Invoices</field>
+        <field name="res_model">omni.invoice</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Premium OmniInvoice!
+            </p>
+        </field>
+    </record>
+
+    <record id="action_omni_transaction" model="ir.actions.act_window">
+        <field name="name">Transactions</field>
+        <field name="res_model">omni.transaction</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record a transaction, payment, or settlement!
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_omni_billing_root" name="OmniBilling Pro" sequence="10" web_icon="omni_billing_pro,static/description/icon.png"/>
+    
+    <menuitem id="menu_omni_billing_invoices" name="Invoices" parent="menu_omni_billing_root" action="action_omni_invoice" sequence="1"/>
+    <menuitem id="menu_omni_billing_transactions" name="Transactions" parent="menu_omni_billing_root" action="action_omni_transaction" sequence="2"/>
+
+</odoo>
