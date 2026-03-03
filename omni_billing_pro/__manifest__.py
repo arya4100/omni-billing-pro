@@ -39,6 +39,6 @@ Key Features:
     'application': True,
     'auto_install': False,
     'license': 'OPL-1',
-    'price': 0,
+    'price': 19.00,
     'currency': 'USD',
 }
