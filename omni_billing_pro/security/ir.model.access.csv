@@ -1,7 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_omni_invoice_user,omni.invoice.user,model_omni_invoice,omni_billing_pro.group_omni_billing_user,1,1,1,0
-access_omni_invoice_manager,omni.invoice.manager,model_omni_invoice,omni_billing_pro.group_omni_billing_manager,1,1,1,1
-access_omni_invoice_line_user,omni.invoice.line.user,model_omni_invoice_line,omni_billing_pro.group_omni_billing_user,1,1,1,0
-access_omni_invoice_line_manager,omni.invoice.line.manager,model_omni_invoice_line,omni_billing_pro.group_omni_billing_manager,1,1,1,1
-access_omni_transaction_user,omni.transaction.user,model_omni_transaction,omni_billing_pro.group_omni_billing_user,1,1,1,0
-access_omni_transaction_manager,omni.transaction.manager,model_omni_transaction,omni_billing_pro.group_omni_billing_manager,1,1,1,1
+access_omni_invoice_all,omni.invoice.all,model_omni_invoice,base.group_user,1,1,1,1
+access_omni_invoice_line_all,omni.invoice.line.all,model_omni_invoice_line,base.group_user,1,1,1,1
+access_omni_transaction_all,omni.transaction.all,model_omni_transaction,base.group_user,1,1,1,1

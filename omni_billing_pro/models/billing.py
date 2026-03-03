@@ -21,10 +21,14 @@ class OmniInvoice(models.Model):
     line_ids = fields.One2many('omni.invoice.line', 'invoice_id', string='Invoice Lines')
     transaction_ids = fields.One2many('omni.transaction', 'invoice_id', string='Transactions')
     
-    amount_total = fields.Monetary(string='Total Amount', store=True, readonly=True, compute='_compute_amounts')
-    amount_paid = fields.Monetary(string='Paid Amount', store=True, readonly=True, compute='_compute_amounts')
-    amount_due = fields.Monetary(string='Amount Due', store=True, readonly=True, compute='_compute_amounts')
-    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id.id)
+    currency_id = fields.Many2one(
+        'res.currency', string='Currency',
+        default=lambda self: self.env.company.currency_id.id,
+        required=True,
+    )
+    amount_total = fields.Monetary(string='Total Amount', store=True, readonly=True, compute='_compute_amounts', currency_field='currency_id')
+    amount_paid = fields.Monetary(string='Paid Amount', store=True, readonly=True, compute='_compute_amounts', currency_field='currency_id')
+    amount_due = fields.Monetary(string='Amount Due', store=True, readonly=True, compute='_compute_amounts', currency_field='currency_id')
     notes = fields.Text(string='Terms and Conditions')
     
     @api.model_create_multi
@@ -62,6 +66,7 @@ class OmniInvoice(models.Model):
                 'default_invoice_id': self.id,
                 'default_partner_id': self.partner_id.id,
                 'default_amount': self.amount_due,
+                'default_currency_id': self.currency_id.id,
             },
             'target': 'new',
         }
@@ -81,8 +86,8 @@ class OmniInvoiceLine(models.Model):
     name = fields.Char(string='Description', required=True)
     quantity = fields.Float(string='Quantity', default=1.0, required=True)
     price_unit = fields.Float(string='Unit Price', required=True)
-    price_subtotal = fields.Monetary(string='Subtotal', store=True, readonly=True, compute='_compute_price_subtotal')
     currency_id = fields.Many2one(related='invoice_id.currency_id', store=True)
+    price_subtotal = fields.Monetary(string='Subtotal', store=True, readonly=True, compute='_compute_price_subtotal', currency_field='currency_id')
 
     @api.depends('quantity', 'price_unit')
     def _compute_price_subtotal(self):
@@ -99,13 +104,17 @@ class OmniTransaction(models.Model):
     invoice_id = fields.Many2one('omni.invoice', string='Invoice')
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     date = fields.Date(string='Date', default=fields.Date.context_today, required=True, tracking=True)
-    amount = fields.Monetary(string='Amount', required=True, tracking=True)
-    currency_id = fields.Many2one(related='partner_id.currency_id', depends=['partner_id'], store=True)
+    currency_id = fields.Many2one(
+        'res.currency', string='Currency',
+        default=lambda self: self.env.company.currency_id.id,
+        required=True,
+    )
+    amount = fields.Monetary(string='Amount', required=True, tracking=True, currency_field='currency_id')
     payment_method = fields.Selection([
         ('cash', 'Cash'),
         ('bank', 'Bank Transfer'),
         ('card', 'Credit Card'),
-        ('online', 'Online Payment Gateways'),
+        ('online', 'Online Payment'),
     ], string='Payment Method', default='bank', required=True)
     state = fields.Selection([
         ('draft', 'Draft'),
